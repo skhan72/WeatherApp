@@ -10,9 +10,10 @@ constraintlayout = "2.2.1"
 volley = "1.2.1"
 gson = "2.10.1"
 glide = "5.0.5"
-mpandroidchart = "3.1.0"
-playserviceslocation = "21.0.1"
+playserviceslocation = "21.3.0"
 swiperefresh = "1.2.0"
+recyclerviewVersion = "1.4.0"
+mpandroidchart = "v3.1.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -29,6 +30,7 @@ glide = { group = "com.github.bumptech.glide:glide", name ='glide', version.ref 
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 playservices-location = { module = "com.google.android.gms:play-services-location", version.ref = "playserviceslocation" }
 swiperefresh = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefresh" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerviewVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

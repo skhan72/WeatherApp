@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.mpandroidchart)
     implementation(libs.playservices.location)
     implementation(libs.swiperefresh)
+    implementation(libs.androidx.recyclerview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
