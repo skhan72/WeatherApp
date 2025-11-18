@@ -9,11 +9,12 @@ activity = "1.11.0"
 constraintlayout = "2.2.1"
 volley = "1.2.1"
 gson = "2.10.1"
-glide = "5.0.5"
+glide = "4.15.1"
 playserviceslocation = "21.3.0"
-swiperefresh = "1.2.0"
+swiperefresh = "1.1.0"
 recyclerviewVersion = "1.4.0"
 mpandroidchart = "v3.1.0"
+cardview = "1.0.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -25,7 +26,8 @@ activity = { group = "androidx.activity", name = "activity", version.ref = "acti
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 volley = { module = "com.android.volley:volley", version.ref = "volley" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
-glide = { group = "com.github.bumptech.glide:glide", name ='glide', version.ref = "glide" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
 
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 playservices-location = { module = "com.google.android.gms:play-services-location", version.ref = "playserviceslocation" }

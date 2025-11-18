@@ -1,4 +1,5 @@
 package org.khan.weatherapp;
+
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.view.View;
@@ -12,34 +13,26 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
-import org.khan.graphing.databinding.ActivityMainBinding;
+import org.khan.weatherapp.databinding.ActivityMainBinding;
 
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.TreeMap;
+import java.util.Objects;
 
 public class ChartMaker {
 
-    private static final SimpleDateFormat sdf =
-            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-
-    private static final SimpleDateFormat sdf2 =
-            new SimpleDateFormat("yyyy-MM-dd ", Locale.US);
-
-    private static final SimpleDateFormat sdf3 =
-            new SimpleDateFormat("MMMM dd, yyyy h:mm a", Locale.US);
-
-    //private TreeMap<String, Double> temperatureData;
     private final MainActivity mainActivity;
     private final ActivityMainBinding binding;
+
+    private static final SimpleDateFormat inputFormat =
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+
+    private static final SimpleDateFormat dayPrefixFormat =
+            new SimpleDateFormat("yyyy-MM-dd ", Locale.US);
 
     public ChartMaker(MainActivity mainActivity, ActivityMainBinding binding) {
         this.mainActivity = mainActivity;
@@ -49,64 +42,60 @@ public class ChartMaker {
     public void makeChart(TreeMap<String, Double> temperatureData,
                           long timeMillisIn) {
 
-        setupChart(binding.chart1);
-        setupXAxis(binding.chart1);
-        setupYAxis(binding.chart1);
-        setData(binding.chart1, temperatureData);
+        LineChart chart = binding.chartTemp;
 
-        binding.dateTimeText.setText(sdf3.format(new Date(timeMillisIn)));
-        binding.chart1.setVisibility(View.VISIBLE);
+        setupChart(chart);
+        setupXAxis(chart);
+        setupYAxis(chart);
+        setData(chart, temperatureData);
+
+        chart.setVisibility(View.VISIBLE);
     }
 
 
     private void setData(LineChart mChart, TreeMap<String, Double> fullResults) {
 
         ArrayList<Entry> values = new ArrayList<>();
-        Float isFirstValue = null;
 
-        for (String date : fullResults.keySet()) {
+        for (String time : fullResults.keySet()) {
             try {
-                String d1 = sdf2.format(new Date()) + date;
-                Date dateValue = sdf.parse(d1);
-                long timeAsMs = Objects.requireNonNull(dateValue).getTime();
-                float tempForTime = Objects.requireNonNull(fullResults.get(date)).floatValue();
-                if (isFirstValue == null)
-                    isFirstValue = tempForTime;
-                values.add(new Entry(timeAsMs, tempForTime));
+                // Create a full datetime string like: "2025-01-01 13:00:00"
+                String fullDate = dayPrefixFormat.format(new Date()) + time;
+
+                Date dateValue = inputFormat.parse(fullDate);
+                long timeMs = Objects.requireNonNull(dateValue).getTime();
+
+                float temp = Objects.requireNonNull(fullResults.get(time)).floatValue();
+
+                values.add(new Entry(timeMs, temp));
+
             } catch (Exception e) {
-                binding.dateTimeText.setText(
-                        MessageFormat.format("Error: {0}", e.getMessage()));
+                // Ignore parse errors
             }
         }
 
-        LineDataSet lineDataSet;
-        lineDataSet = new LineDataSet(values, "DataSet 1");
-        lineDataSet.setDrawIcons(false);
-        lineDataSet.setColor(Color.WHITE);
-        lineDataSet.setCircleColor(Color.BLACK);
-        lineDataSet.setLineWidth(3f);
-        lineDataSet.setDrawCircles(false);
-        lineDataSet.setDrawValues(false);
-        lineDataSet.setValueTextSize(12f);
-        lineDataSet.setDrawFilled(false);
-        lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        LineDataSet set = new LineDataSet(values, "Temperatures");
+        set.setDrawIcons(false);
+        set.setColor(Color.WHITE);
+        set.setCircleColor(Color.BLACK);
+        set.setLineWidth(3f);
+        set.setDrawCircles(false);
+        set.setDrawValues(false);
+        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
 
-        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-        dataSets.add(lineDataSet); // add the datasets
+        LineData data = new LineData(set);
 
-        LineData data = new LineData(dataSets);
-        mChart.setVisibility(View.VISIBLE);
         mChart.clear();
         mChart.setData(data);
         mChart.invalidate();
 
+        // Add a vertical "current time" line
+        LimitLine ll = new LimitLine(System.currentTimeMillis());
+        ll.setLineWidth(1f);
+        ll.setLineColor(Color.WHITE);
 
-        // Add vertical line to show current time
-        LimitLine llXAxis = new LimitLine(System.currentTimeMillis());// + (30 * 60 * 1000));
-        llXAxis.setLineWidth(1f);
-        llXAxis.setLineColor(Color.WHITE);
-        mChart.getXAxis().removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
-        mChart.getXAxis().addLimitLine(llXAxis);
+        mChart.getXAxis().removeAllLimitLines();
+        mChart.getXAxis().addLimitLine(ll);
     }
 
     private void setupChart(LineChart mChart) {
@@ -119,94 +108,51 @@ public class ChartMaker {
         mChart.setAutoScaleMinMaxEnabled(true);
         mChart.getAxisRight().setEnabled(false);
         mChart.animateX(500);
-        mChart.setExtraBottomOffset(4f);
-        mChart.setExtraRightOffset(20f);
-        Legend l = mChart.getLegend();
-        l.setEnabled(false);
 
-        mChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener()
-        {
-            @Override
-            public void onValueSelected(Entry e, Highlight h)
-            {
-                mainActivity.displayChartTemp(e.getX(), e.getY());
-            }
-
-            @Override
-            public void onNothingSelected()
-            {
-
-            }
-        });
+        Legend legend = mChart.getLegend();
+        legend.setEnabled(false);
     }
 
-
     private void setupXAxis(LineChart mChart) {
-
         XAxis xAxis = mChart.getXAxis();
         xAxis.enableGridDashedLine(10f, 10f, 0f);
         xAxis.setGridColor(Color.parseColor("#DDFFFFFF"));
-        xAxis.setValueFormatter(new MyCustomXAxisValueFormatter());
+        xAxis.setValueFormatter(new MyCustomXAxisFormatter());
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setTextColor(Color.WHITE);
-        xAxis.setTextSize(15);
+        xAxis.setTextSize(14);
         xAxis.setLabelRotationAngle(90);
         xAxis.setLabelCount(8, true);
-        xAxis.setSpaceMax(0.0f);
-        xAxis.setSpaceMin(0.0f);
-
-
     }
-
 
     private void setupYAxis(LineChart mChart) {
-
-        YAxis leftAxis = mChart.getAxisLeft();
-        leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
-        leftAxis.enableGridDashedLine(10f, 10f, 0f);
-        leftAxis.setValueFormatter(new MyCustomYAxisValueFormatter());
-        leftAxis.setGridColor(Color.parseColor("#DDFFFFFF"));
+        YAxis yAxis = mChart.getAxisLeft();
+        yAxis.removeAllLimitLines();
+        yAxis.enableGridDashedLine(10f, 10f, 0f);
+        yAxis.setValueFormatter(new MyCustomYAxisFormatter());
+        yAxis.setGridColor(Color.parseColor("#DDFFFFFF"));
 
         int orientation = mainActivity.getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            leftAxis.setLabelCount(4, true);
-        } else {
-            leftAxis.setLabelCount(6, true);
-        }
+        yAxis.setLabelCount(orientation == Configuration.ORIENTATION_LANDSCAPE ? 4 : 6, true);
 
-
-        leftAxis.setDrawZeroLine(false);
-        leftAxis.setTextColor(Color.WHITE);
-        leftAxis.setTextSize(16);
-        leftAxis.setDrawLimitLinesBehindData(true);
-
-
+        yAxis.setTextColor(Color.WHITE);
+        yAxis.setTextSize(14);
     }
 
-
-
-    public static class MyCustomXAxisValueFormatter extends ValueFormatter {
-        private final SimpleDateFormat simpleDateFormat;
-
-        MyCustomXAxisValueFormatter() {
-            simpleDateFormat = new SimpleDateFormat("h a", Locale.US);
-        }
+    public static class MyCustomXAxisFormatter extends ValueFormatter {
+        private final SimpleDateFormat formatter =
+                new SimpleDateFormat("h a", Locale.US);
 
         @Override
         public String getFormattedValue(float value) {
-            value += 5 * 60 * 1000;
-            Date d = new Date((long) value);
-            return simpleDateFormat.format(d).toLowerCase();
+            return formatter.format(new Date((long) value)).toLowerCase();
         }
-
     }
 
-    public static class MyCustomYAxisValueFormatter extends ValueFormatter {
-
+    public static class MyCustomYAxisFormatter extends ValueFormatter {
         @Override
         public String getFormattedValue(float value) {
             return String.format(Locale.getDefault(), "%.0f°", value);
         }
-
     }
 }

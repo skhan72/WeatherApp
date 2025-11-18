@@ -14,10 +14,17 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "VC_API_KEY",
+            "\"${project.findProperty("VISUAL_CROSSING_API_KEY") ?: ""}\""
+        )
     }
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     buildTypes {
@@ -49,6 +56,7 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.mpandroidchart)
     implementation(libs.playservices.location)
+    implementation(libs.cardview)
     implementation(libs.swiperefresh)
     implementation(libs.androidx.recyclerview)
     testImplementation(libs.junit)

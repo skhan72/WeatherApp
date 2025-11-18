@@ -1,8 +1,10 @@
 package org.khan.weatherapp;
+
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import java.util.Locale;
+
 public class ColorMaker {
     public static void setColorGradient(View view, double tempIn, String unitLetter) {
         double temp = tempIn;
