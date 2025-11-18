@@ -5,7 +5,7 @@ package org.khan.weatherapp;
  */
 public class CurrentConditions {
     public String datetime;        // e.g., "15:00:00"
-    public long datetimeEpoch;     // epoch seconds
+    public long datetimeEpoch;
 
     public double temp;
     public double feelslike;

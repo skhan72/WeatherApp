@@ -10,6 +10,10 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -46,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
     private final List<Day> days = new ArrayList<>();
     private final List<Hour> hourlyList = new ArrayList<>();
     private HourlyAdapter hourlyAdapter;
+    private double currentLat = Double.NaN;
+    private double currentLon = Double.NaN;
+
 
     // store last location query so toggling units reuses it (city name or "lat,lon")
     private String lastQueriedLocation = null;
@@ -114,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
             });
 
             binding.iv15Day.setOnClickListener(v -> {
+                DailyForecastActivity.cityName = binding.tvHeader.getText().toString().split(",")[0].trim();
                 if (days.isEmpty()) return;
 
                 DailyForecastActivity.daysList = days;  // send 15-day data
@@ -145,8 +153,32 @@ public class MainActivity extends AppCompatActivity {
             });
 
             binding.ivMap.setOnClickListener(v -> {
-                Toast.makeText(this, "Map Feature Not Implemented", Toast.LENGTH_SHORT).show();
+                if (Double.isNaN(currentLat) || Double.isNaN(currentLon)) {
+                    Toast.makeText(this, "Location not available yet", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String uri = String.format(Locale.US, "geo:%f,%f?q=%f,%f",
+                        currentLat, currentLon,
+                        currentLat, currentLon);
+
+                Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(uri));
+                intent.setPackage("com.google.android.apps.maps"); // Open directly in Google Maps if installed
+
+                try {
+                    startActivity(intent);
+                } catch (Exception e) {
+                    // fallback: open in any maps app or browser
+                    Intent fallback = new Intent(Intent.ACTION_VIEW,
+                            android.net.Uri.parse(
+                                    String.format(Locale.US,
+                                            "https://www.google.com/maps/search/?api=1&query=%f,%f",
+                                            currentLat, currentLon)
+                            ));
+                    startActivity(fallback);
+                }
             });
+
 
             checkPermissionsAndFetch();
         } catch (Exception ex) {
@@ -159,6 +191,53 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         }
     }
+
+    // --- Connectivity check ---
+    private boolean isNetworkAvailable() {
+        try {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm == null) return false;
+            NetworkInfo ni = cm.getActiveNetworkInfo();
+            return ni != null && ni.isConnected();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // --- Dialogs ---
+// Location error: requested location not found
+    private void showLocationError(String location) {
+        String msg = "The specified location '" + location + "' could not be resolved. Please try a different location.";
+        new AlertDialog.Builder(this)
+                .setTitle("Location Error")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setMessage(msg)
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    // Weather data error: API returned bad data / parse failed
+    private void showWeatherDataError() {
+        String msg = "There was an error retrieving the weather data. Please try again later.";
+        new AlertDialog.Builder(this)
+                .setTitle("Weather Data Error")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setMessage(msg)
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    // No internet connection
+    private void showNoInternet() {
+        String msg = "This app requires an internet connection to function properly. Please check your connection and try again.";
+        new AlertDialog.Builder(this)
+                .setTitle("No Internet Connection")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setMessage(msg)
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
 
     private void checkPermissionsAndFetch() {
         boolean fine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
@@ -287,21 +366,42 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
+// Check network first
+            if (!isNetworkAvailable()) {
+                showNoInternet();
+                return;
+            }
+
             ApiManager.fetchWeatherForLocation(this, location, apiKey, unitGroup, new ApiManager.ApiCallback() {
                 @Override
                 public void onSuccess(String json) {
-                    runOnUiThread(() -> parseAndDisplay(json));
+                    runOnUiThread(() -> {
+                        try {
+                            // Parse and validate response; parseAndDisplay will also do final validation
+                            if (json == null || json.trim().isEmpty()) {
+                                showWeatherDataError();
+                                return;
+                            }
+                            parseAndDisplay(json);
+                        } catch (Exception ex) {
+                            showWeatherDataError();
+                        }
+                    });
                 }
 
                 @Override
                 public void onFailure(String error) {
-                    runOnUiThread(() -> new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("Network Error")
-                            .setMessage(error)
-                            .setPositiveButton("OK", null)
-                            .show());
+                    runOnUiThread(() -> {
+                        // Distinguish common failure reasons if possible
+                        if (error != null && error.toLowerCase().contains("timed out")) {
+                            showWeatherDataError();
+                        } else {
+                            showWeatherDataError();
+                        }
+                    });
                 }
             });
+
         } catch (Exception ex) {
             Log.e("MainActivity", "fetchWeatherByCity error", ex);
             new AlertDialog.Builder(this)
@@ -316,17 +416,93 @@ public class MainActivity extends AppCompatActivity {
         try {
             JSONObject root = new JSONObject(json);
 
-            // --- Build header: Location + formatted date/time ---
-            String resolvedAddress = root.optString("resolvedAddress", "");
+            double lat = root.optDouble("latitude", Double.NaN);
+            double lon = root.optDouble("longitude", Double.NaN);
+
+            // Debug: store last raw response (optional)
+            ApiManager.lastJsonResponse = json;
+
+// Quick server-provided error message (if any)
+            String apiMessage = root.optString("message", "").trim();
+            if (!apiMessage.isEmpty()) {
+                Log.w("MainActivity", "API message: " + apiMessage);
+            }
+
+// RESOLVED ADDRESS check
+            String resolvedAddress = root.optString("resolvedAddress", "").trim();
+
+// If resolvedAddress is empty -> treat as location-not-found
+            if (resolvedAddress.isEmpty()) {
+                String attempted = (lastQueriedLocation != null && !lastQueriedLocation.isEmpty()) ? lastQueriedLocation : "requested location";
+                showLocationError(attempted);
+                return;
+            }
+
+// DAYS array validation (improved)
+            JSONArray daysArr = root.optJSONArray("days");
+            if (daysArr == null || daysArr.length() == 0) {
+
+                // Debug: log the raw API response once so we can inspect what's happening for failures
+                Log.w("MainActivity", "API returned no days for query='" + lastQueriedLocation + "'. Response: " + ApiManager.lastJsonResponse);
+
+                String lowerMsg = apiMessage.toLowerCase();
+
+                // 1) If the API explicitly says the location couldn't be resolved, show Location Error
+                if (lowerMsg.contains("could not be resolved") ||
+                        lowerMsg.contains("not found") ||
+                        lowerMsg.contains("no results") ||
+                        lowerMsg.contains("no location") ||
+                        lowerMsg.contains("invalid location")) {
+
+                    String attempted = (lastQueriedLocation != null && !lastQueriedLocation.isEmpty()) ? lastQueriedLocation : "requested location";
+                    showLocationError(attempted);
+                    return;
+                }
+
+                // 2) If the user asked by coordinates or a ZIP (numbers present), treat as data/server error
+                //    e.g. "41.88,-87.62" or "60604" — these are explicit location inputs, so missing days => server/data problem
+                boolean queryLooksLikeCoords = lastQueriedLocation != null && lastQueriedLocation.matches("^\\s*-?\\d+(\\.\\d+)?\\s*,\\s*-?\\d+(\\.\\d+)?\\s*$");
+                boolean queryLooksLikeZip = lastQueriedLocation != null && lastQueriedLocation.matches(".*\\b\\d{5}\\b.*");
+
+                if (queryLooksLikeCoords || queryLooksLikeZip) {
+                    // server returned empty data for explicit location input => Weather Data Error
+                    showWeatherDataError();
+                    return;
+                }
+
+                // 3) Otherwise (user typed a normal text string that produced no days AND no explicit API message),
+                //    most likely VisualCrossing couldn't resolve the textual location — show Location Error.
+                String attempted = (lastQueriedLocation != null && !lastQueriedLocation.isEmpty()) ? lastQueriedLocation : "requested location";
+                showLocationError(attempted);
+                return;
+            }
+
+
+// Optional: also verify currentConditions exist
+            if (!root.has("currentConditions") || root.optJSONObject("currentConditions") == null) {
+                // If resolvedAddress looks like an unresolved query, prefer Location Error
+                String attempted = (lastQueriedLocation != null && !lastQueriedLocation.isEmpty()) ? lastQueriedLocation : "requested location";
+                showWeatherDataError(); // retain generic error here because we already ensured resolvedAddress present above
+                return;
+            }
+
+// --- at this point validated: resolvedAddress present & days exist
+// continue with your existing parsing logic (build header, etc.)
+
+
+// Save for map use
+            currentLat = lat;
+            currentLon = lon;
+
+// Normal extraction (city only)
             String displayLocation;
             if (resolvedAddress.contains(",")) {
                 String[] parts = resolvedAddress.split(",");
                 displayLocation = parts[0].trim();
-            } else if (!resolvedAddress.isEmpty()) {
-                displayLocation = resolvedAddress;
             } else {
-                displayLocation = "Unknown location";
+                displayLocation = resolvedAddress;
             }
+
 
             // We'll format the current time from the currentConditions.datetimeEpoch (fallback to now)
             long headerEpoch = System.currentTimeMillis() / 1000L;
@@ -392,8 +568,6 @@ public class MainActivity extends AppCompatActivity {
             if (iconId == 0) iconId = getResources().getIdentifier("ic_launcher", "mipmap", getPackageName());
             if (binding != null && binding.ivWeatherIcon != null) binding.ivWeatherIcon.setImageResource(iconId);
 
-            // Parse days
-            JSONArray daysArr = root.getJSONArray("days");
             days.clear();
             for (int i = 0; i < daysArr.length(); i++) {
                 JSONObject d = daysArr.getJSONObject(i);

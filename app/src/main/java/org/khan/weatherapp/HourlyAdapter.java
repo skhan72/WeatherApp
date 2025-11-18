@@ -40,7 +40,7 @@ public class HourlyAdapter extends RecyclerView.Adapter<HourlyViewHolder> {
         Hour h = hours.get(position);
         if (h == null) return;
 
-        // --- Day label: "Today" or weekday ---
+        // Day label: "Today" or weekday
         String dayLabel;
         long nowEpoch = System.currentTimeMillis() / 1000L;
         if (isSameDayEpoch(nowEpoch, h.datetimeEpoch)) {
@@ -54,17 +54,15 @@ public class HourlyAdapter extends RecyclerView.Adapter<HourlyViewHolder> {
         // Time label: assume caller set friendly label (e.g., "1 PM"); fallback to raw datetime
         holder.binding.tvHourTime.setText(h.datetime != null ? h.datetime : (h.datetimeEpoch > 0 ? String.valueOf(h.datetimeEpoch) : ""));
 
-        // Temp (no decimals)
+        // Temp
         holder.binding.tvHourTemp.setText(String.format(Locale.getDefault(), "%.0f°", h.temp));
 
         // Description
         holder.binding.tvHourDesc.setText(h.conditions != null ? h.conditions : "");
 
-        // Load icon by name (replace dashes with underscores)
         String iconName = (h.icon == null || h.icon.isEmpty()) ? "ic_launcher" : h.icon.replace("-", "_");
         int iconRes = ctx.getResources().getIdentifier(iconName, "drawable", ctx.getPackageName());
         if (iconRes == 0) {
-            // fallback to mipmap launcher if drawable missing
             iconRes = ctx.getResources().getIdentifier("ic_launcher", "mipmap", ctx.getPackageName());
         }
 
@@ -77,8 +75,6 @@ public class HourlyAdapter extends RecyclerView.Adapter<HourlyViewHolder> {
     public int getItemCount() {
         return hours == null ? 0 : hours.size();
     }
-
-    // helper: compare two epoch-second timestamps for same calendar day in the device locale/timezone
     private boolean isSameDayEpoch(long epochSecondsA, long epochSecondsB) {
         Calendar a = Calendar.getInstance();
         a.setTimeInMillis(epochSecondsA * 1000L);

@@ -34,10 +34,10 @@ public class ApiManager {
                     Request.Method.GET,
                     url,
                     response -> {
-                        // 🔴 NEW CODE — save JSON for share feature
+
                         ApiManager.lastJsonResponse = response;
 
-                        // Send response to MainActivity
+
                         callback.onSuccess(response);
                     },
                     error -> callback.onFailure(error.getMessage())

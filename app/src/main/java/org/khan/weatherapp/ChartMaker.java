@@ -70,14 +70,14 @@ public class ChartMaker {
                 values.add(new Entry(timeMs, temp));
 
             } catch (Exception e) {
-                // Ignore parse errors
+
             }
         }
 
         LineDataSet set = new LineDataSet(values, "Temperatures");
         set.setDrawIcons(false);
         set.setColor(Color.WHITE);
-        set.setCircleColor(Color.BLACK);
+        set.setCircleColor(Color.WHITE);
         set.setLineWidth(3f);
         set.setDrawCircles(false);
         set.setDrawValues(false);

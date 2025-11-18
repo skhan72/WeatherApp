@@ -7,99 +7,238 @@
     android:layout_margin="0dp"
     android:padding="0dp">
 
+    <!-- Top translucent header with day + date -->
+    <FrameLayout
+        android:id="@+id/frameLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#40000000"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tvDayDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Saturday, 10/12"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_vertical|start" />
+    </FrameLayout>
+
+    <!-- Main content row: left text block + right icon -->
     <LinearLayout
         android:id="@+id/container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:paddingLeft="12dp"
+        android:paddingTop="12dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/ivDayIcon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:contentDescription="icon"
-            android:src="@drawable/clear_day" />
+        app:layout_constraintTop_toBottomOf="@id/frameLayout2">
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
             android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tvDayName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mon"
-                android:textColor="#000000"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Oct 14"
-                android:textColor="#444444"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tvDescription"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Partly cloudy"
-                android:textColor="#333333"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tvPrecip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Precip: 30%"
-                android:textColor="#444444"
-                android:textSize="13sp" />
-
-            <TextView
-                android:id="@+id/tvUV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="UV Index: 4"
-                android:textColor="#444444"
-                android:textSize="13sp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingRight="10dp">
 
             <TextView
                 android:id="@+id/tvTempHigh"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="72°"
-                android:textColor="#000000"
-                android:textSize="20sp"
+                android:textColor="#FFFFFF"
+                android:textSize="48sp"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvTempLow"
+                android:id="@+id/tvDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="54°"
-                android:textColor="#444444"
+                android:layout_marginTop="4dp"
+                android:text="Partly cloudy"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tvPrecip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Precip: 30%"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/tvUV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="UV Index: 4"
+                android:textColor="#FFFFFF"
                 android:textSize="16sp" />
         </LinearLayout>
 
+        <ImageView
+            android:id="@+id/ivDayIcon"
+            android:layout_width="125dp"
+            android:layout_height="125dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="icon"
+            android:src="@drawable/clear_day" />
+    </LinearLayout>
+
+    <!-- Divider line -->
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#25FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Four-period row: Morning / Afternoon / Evening / Night -->
+    <LinearLayout
+        android:id="@+id/periodRow"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="12dp"
+        android:gravity="center_vertical">
+
+        <!-- Morning -->
+        <LinearLayout
+            android:id="@+id/colMorning"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvTempMorning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="64°F"
+                android:textColor="#FFFFFF"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvLabelMorning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Morning"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+        <!-- Afternoon -->
+        <LinearLayout
+            android:id="@+id/colAfternoon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvTempAfternoon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="72°F"
+                android:textColor="#FFFFFF"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvLabelAfternoon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Afternoon"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+        <!-- Evening -->
+        <LinearLayout
+            android:id="@+id/colEvening"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvTempEvening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="68°F"
+                android:textColor="#FFFFFF"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvLabelEvening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Evening"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+        <!-- Night -->
+        <LinearLayout
+            android:id="@+id/colNight"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvTempNight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="60°F"
+                android:textColor="#FFFFFF"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvLabelNight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Night"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootMain"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#395D25"
+    android:padding="0dp">
+
+    <!-- Top header: Location and date/time -->
+    <TextView
+        android:id="@+id/tvHeader"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:text="City, Sat Oct 12 12:00 PM"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Icon bar (6 icons) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/iconBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#40000000"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvHeader">
+
+        <!-- 1) MAP -->
+        <ImageView
+            android:id="@+id/ivMap"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Map"
+            android:padding="6dp"
+            android:src="@drawable/map"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/ivReset"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 2) RESET -->
+        <ImageView
+            android:id="@+id/ivReset"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Reset Location"
+            android:padding="6dp"
+            android:src="@drawable/target"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/ivShare"
+            app:layout_constraintStart_toEndOf="@id/ivMap"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 3) SHARE -->
+        <ImageView
+            android:id="@+id/ivShare"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Share"
+            android:padding="6dp"
+            android:src="@drawable/share"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/ivToggleUnit"
+            app:layout_constraintStart_toEndOf="@id/ivReset"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 4) TOGGLE UNIT -->
+        <ImageView
+            android:id="@+id/ivToggleUnit"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Toggle Units"
+            android:padding="6dp"
+            android:src="@drawable/units_f"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/iv15Day"
+            app:layout_constraintStart_toEndOf="@id/ivShare"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 5) 15-DAY -->
+        <ImageView
+            android:id="@+id/iv15Day"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="15 Day"
+            android:padding="6dp"
+            android:src="@drawable/daily"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/ivSetLocation"
+            app:layout_constraintStart_toEndOf="@id/ivToggleUnit"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 6) SET LOCATION -->
+        <ImageView
+            android:id="@+id/ivSetLocation"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="Set Location"
+            android:padding="6dp"
+            android:src="@drawable/location"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv15Day"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!-- Current Weather Section -->
+    <TextView
+        android:id="@+id/tvTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="67°F"
+        android:textColor="#FFFFFF"
+        android:textSize="44sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iconBar" />
+
+    <TextView
+        android:id="@+id/tvFeelsLike"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Feels like 67°F"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTemp" />
+
+    <ImageView
+        android:id="@+id/ivWeatherIcon"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="Weather Icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvTemp" />
+
+    <!-- Wind/Humidity/UV/Visibility info -->
+
+    <TextView
+        android:id="@+id/tvConditionDesc"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="8dp"
+        android:text="Partly Cloudy (68% clouds)"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toEndOf="@+id/tvTemp"
+        app:layout_constraintTop_toBottomOf="@+id/iconBar" />
+
+    <TextView
+        android:id="@+id/tvWind"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Winds: E at 8 mph gusting to 18 mph"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toStartOf="@+id/tvConditionDesc"
+        app:layout_constraintTop_toBottomOf="@id/tvConditionDesc" />
+
+    <TextView
+        android:id="@+id/tvSunrise"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Sunrise: 7:00 AM"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toStartOf="@+id/tvWind"
+        app:layout_constraintTop_toBottomOf="@+id/tvWind" />
+
+    <TextView
+        android:id="@+id/tvSunset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:text="Sunset: 6:12 PM"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toEndOf="@+id/tvSunrise"
+        app:layout_constraintTop_toBottomOf="@+id/tvWind" />
+
+    <TextView
+        android:id="@+id/tvHumidity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:text="Humidity: 60%"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toStartOf="@+id/ivWeatherIcon"
+        app:layout_constraintTop_toBottomOf="@+id/iconBar" />
+
+    <!-- Line Chart -->
+
+    <TextView
+        android:id="@+id/tvUV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="UV Index: 4"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="@+id/tvHumidity"
+        app:layout_constraintTop_toBottomOf="@+id/tvHumidity" />
+
+    <TextView
+        android:id="@+id/tvVisibility"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Visibility: 9.9 mi"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="@+id/tvUV"
+        app:layout_constraintTop_toBottomOf="@+id/tvUV" />
+
+    <!-- Hourly RecyclerView -->
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/chartTemp"
+        android:layout_width="0dp"
+        android:layout_height="185dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/rvHourly"
+        app:layout_constraintTop_toBottomOf="@+id/ivWeatherIcon" />
+
+    <!-- Sunrise / Sunset -->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvHourly"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="#66FFFFFF"
+        android:orientation="horizontal"
+        android:paddingTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/chartTemp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/chartTemp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

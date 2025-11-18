@@ -2,9 +2,8 @@ package org.khan.weatherapp;
 
 import java.util.List;
 
-/**
- * Represents a daily summary object in the "days" array.
- */
+
+ //Represents a daily summary object in the "days" array.
 public class Day {
     public String datetime;       // e.g., "2025-11-16"
     public long datetimeEpoch;    // epoch seconds

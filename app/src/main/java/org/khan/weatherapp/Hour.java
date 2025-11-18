@@ -1,10 +1,10 @@
 package org.khan.weatherapp;
 
-/**
- * Represents a single hourly entry inside a day's "hours" array.
- */
+
+ // Represents a single hourly entry inside a day's "hours" array.
+
 public class Hour {
-    public String datetime;       // raw string like "13:00:00" (can be replaced with friendly label)
+    public String datetime;       // raw string like "13:00:00"
     public long datetimeEpoch;    // epoch seconds
     public double temp;           // temperature for the hour
 
